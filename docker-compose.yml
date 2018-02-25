@@ -19,3 +19,14 @@ services:
             - 9000
         volumes:
             - .:/var/www/html
+    mysql:
+        image: mysql:latest
+        expose:
+            - 3306
+        volumes:
+            - database_data:/var/lib/mysql
+        environment:
+            MYSQL_ROOT_PASSWORD: 
+            MYSQL_DATABASE: 
+            MYSQL_USER: 
+            MYSQL_PASSWORD:
