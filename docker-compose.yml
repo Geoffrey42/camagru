@@ -1,32 +1,48 @@
-version: '2'
+nginx:
+    build: ./docker/nginx/
+    ports:
+        - 80:80
+    links:
+        - php
+    volumes_from:
+        - app 
 
-volumes:
-    database_data:
-        driver: local
+php:
+    build: ./docker/php/ 
+    expose:
+        - 9000
+    links:
+        - mysql
+    volumes_from:
+        - app 
 
-services:
-    apache:
-        image: httpd:latest
-        ports:
-            - '8080:80'
-        volumes:
-            - ./docker/apache2/htdocs:/usr/local/apache2/htdocs/
-        volumes_from:
-            - php
-    php:
-        build: ./docker/php/
-        expose:
-            - 9000
-        volumes:
-            - .:/var/www/html
-    mysql:
-        image: mysql:latest
-        expose:
-            - 3306
-        volumes:
-            - database_data:/var/lib/mysql
-        environment:
-            MYSQL_ROOT_PASSWORD: 
-            MYSQL_DATABASE: 
-            MYSQL_USER: 
-            MYSQL_PASSWORD:
+app:
+    image: php:7.0-fpm
+    volumes:
+        - .:/var/www/html
+    command: "true"
+
+mysql:
+    image: mysql:latest
+    volumes_from:
+        - data
+    environment:
+        MYSQL_ROOT_PASSWORD: "root"
+        MYSQL_DATABASE: "camagru_db"
+        MYSQL_USER: "root"
+        MYSQL_PASSWORD: "root"
+
+data:
+    image: mysql:latest
+    volumes:
+        - /var/lib/mysql
+    command: "true"
+
+phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    ports:
+        - 8080:80
+    links:
+        - mysql
+    environment:
+        PMA_HOST: mysql
